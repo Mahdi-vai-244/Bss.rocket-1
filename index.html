@@ -1,0 +1,943 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daily English Task - প্রতিদিনের ইংরেজি টাস্ক</title>
+    <!-- Load Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Load Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        /* Custom Fonts for Bangla/English */
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Baloo+Da+2:wght@400;600;700&display=swap');
+        
+        .bn-font { font-family: 'Baloo Da 2', 'Kalpurush', sans-serif; }
+        .en-font { font-family: 'Poppins', sans-serif; }
+
+        /* Custom Colors */
+        :root {
+            --primary: #2563EB; /* Blue-600 */
+            --secondary: #10B981; /* Green-500 */
+            --accent: #F59E0B; /* Orange-500 */
+        }
+        .bg-primary { background-color: var(--primary); }
+        .text-primary { color: var(--primary); }
+        .border-primary { border-color: var(--primary); }
+        
+        /* Basic Styling for Mobile Centering */
+        #app-container {
+            display: flex;
+            flex-direction: column;
+        }
+        #main-content {
+            flex-grow: 1;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 bn-font">
+
+    <div id="app-container" class="min-h-screen">
+        <!-- Header (Desktop/Tablet) -->
+        <header id="desktop-header" class="hidden md:flex bg-white shadow-md p-4 justify-between items-center sticky top-0 z-10">
+            <div class="text-2xl font-extrabold text-blue-600 en-font">
+                DAILY ENGLISH
+            </div>
+            <nav id="desktop-nav" class="flex space-x-4">
+                <!-- Nav Items will be generated here -->
+            </nav>
+            <button onclick="changePage('profile')" id="profile-btn-desktop" class="flex items-center space-x-2 bg-primary text-white py-2 px-4 rounded-full hover:bg-blue-600 transition-colors shadow">
+                <i data-lucide="user" class="w-4 h-4"></i>
+                <span class="font-semibold bn-font">প্রোফাইল</span>
+            </button>
+        </header>
+
+        <!-- Main Content Area -->
+        <main id="main-content" class="container mx-auto max-w-4xl pb-20"></main>
+
+        <!-- Mobile Navigation Bar -->
+        <nav id="mobile-nav" class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-2xl p-2 md:hidden z-20">
+            <div id="mobile-nav-items" class="flex justify-around">
+                <!-- Mobile Nav Items will be generated here -->
+            </div>
+        </nav>
+    </div>
+    
+    <!-- Custom Alert/Modal Box -->
+    <div id="custom-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center hidden" onclick="closeModal()">
+        <div class="bg-white p-6 rounded-lg shadow-2xl max-w-sm w-full mx-4 bn-font" onclick="event.stopPropagation()">
+            <h4 id="modal-title" class="text-xl font-bold text-gray-800 mb-4"></h4>
+            <p id="modal-message" class="text-gray-700 mb-6"></p>
+            <button onclick="closeModal()" class="bg-primary hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg w-full">
+                ঠিক আছে
+            </button>
+        </div>
+    </div>
+
+    <!-- Firebase SDKs -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, onSnapshot, setLogLevel, updateDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // --- Global State and Core Logic ---
+        const state = {
+            currentPage: 'home',
+            userId: null,
+            db: null,
+            auth: null,
+            isAuthReady: false,
+            userData: {
+                name: null,         // New: User's name
+                level: null,        // New: 'beginner', 'middle', 'higher'
+                lastTaskDate: null, // New: 'YYYY-MM-DD'
+                completedLessons: 0,
+                earnedPoints: 0,
+                taskComplete: false,
+                writingInput: '',
+                writingFeedback: null,
+                dailyTask: null, // Daily generated content
+                quizAnswers: {},
+                fillInAnswers: {},
+                quizScore: 0,
+                fillInScore: 0,
+            },
+            loading: false,
+        };
+
+        // Environment Globals
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
+        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+
+        // Gemini API Configuration
+        const GEMINI_MODEL = "gemini-2.5-flash-preview-09-2025";
+        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=`;
+        const apiKey = ""; // Will be injected by the environment
+
+        // --- Core Application Functions ---
+
+        const getTodayDate = () => new Date().toISOString().split('T')[0];
+        
+        window.setState = (updates) => {
+            Object.assign(state, updates);
+            window.updateUI();
+        };
+        
+        window.changePage = (page) => {
+            if (!state.userData.level && page !== 'level_selection') {
+                window.showModal('নিবন্ধন প্রয়োজন', 'অনুশীলন শুরু করার জন্য অনুগ্রহ করে আপনার নাম এবং স্তর নির্বাচন করুন।');
+                return changePage('level_selection');
+            }
+            setState({ currentPage: page });
+        };
+        
+        window.showModal = (title, message) => {
+            document.getElementById('modal-title').innerText = title;
+            document.getElementById('modal-message').innerText = message;
+            document.getElementById('custom-modal').classList.remove('hidden');
+        };
+
+        window.closeModal = () => {
+            document.getElementById('custom-modal').classList.add('hidden');
+        };
+
+        // --- Firebase Functions ---
+
+        const authenticateUser = async (auth) => {
+            try {
+                if (initialAuthToken) {
+                    await signInWithCustomToken(auth, initialAuthToken);
+                } else {
+                    await signInAnonymously(auth);
+                }
+            } catch (error) {
+                console.error("Firebase Auth Error:", error);
+            }
+        };
+
+        const updateProgress = (updates) => {
+            if (state.db && state.userId) {
+                const userDocRef = doc(state.db, `artifacts/${appId}/users/${state.userId}/profile`, 'data');
+                updateDoc(userDocRef, updates).catch(e => console.error("Error updating progress:", e));
+            }
+        };
+
+        const setupApp = () => {
+            if (Object.keys(firebaseConfig).length === 0) {
+                 console.error("Firebase config is missing.");
+                 window.updateUI();
+                 return;
+            }
+            
+            setLogLevel('debug');
+            const app = initializeApp(firebaseConfig);
+            const firestore = getFirestore(app);
+            const authentication = getAuth(app);
+            setState({ db: firestore, auth: authentication });
+
+            authenticateUser(authentication);
+
+            onAuthStateChanged(authentication, (user) => {
+                if (user) {
+                    setState({ userId: user.uid });
+                    
+                    const userDocRef = doc(firestore, `artifacts/${appId}/users/${user.uid}/profile`, 'data');
+
+                    onSnapshot(userDocRef, (docSnap) => {
+                        if (docSnap.exists()) {
+                            const data = docSnap.data();
+                            setState({ userData: { ...state.userData, ...data } });
+
+                            // Check if level is selected, if not, redirect
+                            if (!data.level && state.currentPage !== 'level_selection') {
+                                changePage('level_selection');
+                            } else if (data.level && state.currentPage === 'level_selection') {
+                                // If authenticated and level chosen, go to home
+                                changePage('home');
+                            }
+                        } else {
+                            // Initialize user data and prompt for level selection
+                            setDoc(userDocRef, state.userData).catch(e => console.error("Error setting initial user data:", e));
+                            changePage('level_selection');
+                        }
+                    }, (error) => {
+                        console.error("Error fetching user data:", error);
+                    });
+
+                } else {
+                    setState({ userId: crypto.randomUUID() });
+                    changePage('level_selection');
+                }
+                setState({ isAuthReady: true });
+                window.updateUI(); // Initial render after auth ready
+            });
+        };
+
+        window.handleLevelSelection = async () => {
+            const name = document.getElementById('user-name').value.trim();
+            const level = document.querySelector('input[name="level"]:checked')?.value;
+            
+            if (!name || !level) {
+                showModal("ত্রুটি", "অনুগ্রহ করে আপনার নাম লিখুন এবং একটি স্তর নির্বাচন করুন।");
+                return;
+            }
+
+            const newUserData = {
+                ...state.userData,
+                name: name,
+                level: level,
+                earnedPoints: 0,
+                completedLessons: 0
+            };
+
+            setState({ loading: true, userData: newUserData });
+            
+            const userDocRef = doc(state.db, `artifacts/${appId}/users/${state.userId}/profile`, 'data');
+            await setDoc(userDocRef, newUserData, { merge: true });
+
+            setState({ loading: false });
+            changePage('home');
+        };
+
+        // --- Gemini API & Task Generation ---
+
+        const fetchWithRetry = async (url, options, maxRetries = 5) => {
+            for (let i = 0; i < maxRetries; i++) {
+                try {
+                    const response = await fetch(url, options);
+                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                    return response;
+                } catch (error) {
+                    if (i < maxRetries - 1) {
+                        const delay = Math.pow(2, i) * 1000 + Math.random() * 1000;
+                        console.warn(`Fetch attempt ${i + 1} failed. Retrying in ${delay / 1000}s...`);
+                        await new Promise(resolve => setTimeout(resolve, delay));
+                    } else {
+                        throw new Error(`Fetch failed after ${maxRetries} attempts: ${error.message}`);
+                    }
+                }
+            }
+        };
+        
+        const fetchGeminiContent = async (payload, stateKey, expectedJson = false) => {
+            setState({ loading: true });
+            
+            try {
+                const response = await fetchWithRetry(apiUrl + apiKey, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const result = await response.json();
+                const jsonText = result.candidates?.[0]?.content?.parts?.[0]?.text;
+
+                if (jsonText) {
+                    if (expectedJson) {
+                         try {
+                            const parsedJson = JSON.parse(jsonText);
+                            setState({ userData: { ...state.userData, [stateKey]: parsedJson } });
+                        } catch (e) {
+                            console.error("Failed to parse JSON:", e, jsonText);
+                            setState({ userData: { ...state.userData, [stateKey]: "JSON ডেটা পার্স করতে সমস্যা হয়েছে। আবার চেষ্টা করুন।" } });
+                        }
+                    } else {
+                        setState({ userData: { ...state.userData, [stateKey]: jsonText } });
+                    }
+                } else {
+                    setState({ userData: { ...state.userData, [stateKey]: "দুঃখিত, AI থেকে প্রতিক্রিয়া পেতে ব্যর্থ। আবার চেষ্টা করুন।" } });
+                }
+            } catch (error) {
+                console.error("Gemini API Error:", error);
+                setState({ userData: { ...state.userData, [stateKey]: "API ত্রুটি: ডেটা লোড করা যায়নি।" } });
+            } finally {
+                setState({ loading: false });
+            }
+        };
+
+        window.generateDailyTask = async () => {
+            const { level } = state.userData;
+            const today = getTodayDate();
+
+            if (state.userData.dailyTask && state.userData.lastTaskDate === today) {
+                showModal("ইতিমধ্যে লোড করা হয়েছে", "আজকের টাস্ক ইতোমধ্যে লোড করা হয়েছে।");
+                return;
+            }
+
+            const levelMap = {
+                beginner: "শুরুর স্তর (Simple Present, Basic Vocabulary)",
+                middle: "মধ্যবর্তী স্তর (All Tenses, Idioms, Phrasal Verbs)",
+                higher: "উন্নত স্তর (Advanced Grammar, Formal/Academic Writing, Complex Sentence Structures)"
+            };
+
+            const systemPrompt = `You are a dynamic English content generator. Create exactly 5 multiple-choice questions (quiz) and 5 fill-in-the-blank questions based on the user's ${levelMap[level]} level. The entire output must be formatted as a single JSON object. Do NOT include any text outside the JSON block. All questions, options, and answers must be in English. All explanations and user-facing text must be in Bengali (Bangla). Use a placeholder [BLANK] for fill-in-the-blanks.
+
+            JSON Schema:
+            {
+              "quiz_questions": [
+                {"q_en": "Question", "options_en": ["Option 1", "Option 2", "Option 3", "Option 4"], "correct_en": "Correct Option", "explanation_bn": "বাংলায় ব্যাখ্যা"},
+                // ... 4 more
+              ],
+              "fill_in_the_blanks": [
+                {"sentence_en": "The cat is sitting [BLANK] the chair.", "correct_en": "on", "hint_bn": "উপযুক্ত Preposition ব্যবহার করুন।"},
+                // ... 4 more
+              ],
+              "writing_prompt_bn": "আজকের লেখার টাস্ক: [বাংলায় টপিক]"
+            }`;
+            
+            const userQuery = `আমার স্তর "${level}"। আমার জন্য আজকের টাস্ক (কুইজ, শূন্যস্থান পূরণ, এবং লেখার টপিক) জেনারেট করুন।`;
+
+            const payload = {
+                contents: [{ parts: [{ text: userQuery }] }],
+                systemInstruction: { parts: [{ text: systemPrompt }] },
+                generationConfig: {
+                    responseMimeType: "application/json",
+                    responseSchema: {
+                        type: "OBJECT",
+                        properties: {
+                            "quiz_questions": { type: "ARRAY", items: { type: "OBJECT" } },
+                            "fill_in_the_blanks": { type: "ARRAY", items: { type: "OBJECT" } },
+                            "writing_prompt_bn": { type: "STRING" }
+                        }
+                    }
+                }
+            };
+
+            // Reset scores and answers when loading new task
+            setState({ 
+                userData: { 
+                    ...state.userData, 
+                    dailyTask: null,
+                    writingInput: '',
+                    writingFeedback: null,
+                    quizAnswers: {}, 
+                    fillInAnswers: {},
+                    quizScore: 0,
+                    fillInScore: 0,
+                    taskComplete: false,
+                    lastTaskDate: today, // Set date immediately to prevent double fetch
+                } 
+            });
+
+            await fetchGeminiContent(payload, 'dailyTask', true);
+        };
+        
+        window.submitQuiz = () => {
+            const { dailyTask, quizAnswers } = state.userData;
+            if (!dailyTask || !dailyTask.quiz_questions) return showModal("ত্রুটি", "দৈনিক টাস্ক লোড করা হয়নি।");
+
+            let correctCount = 0;
+            const quizResults = dailyTask.quiz_questions.map((q, index) => {
+                const userAnswer = quizAnswers[index];
+                const isCorrect = userAnswer && userAnswer.toLowerCase() === q.correct_en.toLowerCase();
+                if (isCorrect) correctCount++;
+                return { isCorrect, explanation: q.explanation_bn };
+            });
+
+            const pointsAwarded = correctCount * 5; // 5 points per correct answer
+
+            setState({ 
+                userData: { 
+                    ...state.userData, 
+                    quizScore: correctCount,
+                    earnedPoints: state.userData.earnedPoints + pointsAwarded
+                } 
+            });
+            updateProgress({ 
+                quizScore: correctCount,
+                earnedPoints: state.userData.earnedPoints + pointsAwarded
+            });
+            showModal("কুইজের ফলাফল", `আপনি ৫টির মধ্যে ${correctCount}টি সঠিক উত্তর দিয়েছেন এবং ${pointsAwarded} পয়েন্ট পেয়েছেন!`);
+        };
+
+        window.submitFillInTheBlanks = () => {
+            const { dailyTask, fillInAnswers } = state.userData;
+            if (!dailyTask || !dailyTask.fill_in_the_blanks) return showModal("ত্রুটি", "দৈনিক টাস্ক লোড করা হয়নি।");
+
+            let correctCount = 0;
+            const fillInResults = dailyTask.fill_in_the_blanks.map((item, index) => {
+                const userAnswer = fillInAnswers[index];
+                const isCorrect = userAnswer && userAnswer.trim().toLowerCase() === item.correct_en.toLowerCase();
+                if (isCorrect) correctCount++;
+                return { isCorrect };
+            });
+
+            const pointsAwarded = correctCount * 5; // 5 points per correct answer
+
+            setState({ 
+                userData: { 
+                    ...state.userData, 
+                    fillInScore: correctCount,
+                    earnedPoints: state.userData.earnedPoints + pointsAwarded
+                } 
+            });
+            updateProgress({ 
+                fillInScore: correctCount,
+                earnedPoints: state.userData.earnedPoints + pointsAwarded
+            });
+            showModal("শূন্যস্থান পূরণের ফলাফল", `আপনি ৫টির মধ্যে ${correctCount}টি শব্দ সঠিকভাবে পূরণ করেছেন এবং ${pointsAwarded} পয়েন্ট পেয়েছেন!`);
+            checkTaskCompletion();
+        };
+
+        window.handleTaskInput = (taskType, index, value) => {
+            const key = taskType === 'quiz' ? 'quizAnswers' : 'fillInAnswers';
+            setState({ 
+                userData: { 
+                    ...state.userData, 
+                    [key]: {
+                        ...state.userData[key],
+                        [index]: value
+                    }
+                } 
+            });
+        };
+
+        window.generateWritingFeedback = async () => {
+            const input = document.getElementById('writing-input').value.trim();
+            if (!input) {
+                setState({ userData: { ...state.userData, writingFeedback: "অনুগ্রহ করে কিছু লিখুন।" } });
+                return;
+            }
+            setState({ userData: { ...state.userData, writingInput: input } });
+
+            const systemPrompt = `You are an expert English tutor for Bangladeshi students. Provide constructive feedback on the user's English writing. 
+            1. Identify and correct major grammatical errors.
+            2. Suggest improvements for fluency and structure.
+            3. Rate the submission's English proficiency on a scale of 1 to 100.
+            4. Provide the feedback and score in the following format (all non-code text should be in Bengali):
+            ---
+            স্কোর: [Score]/100
+            মূল লেখা: [Original Text]
+            সংশোধিত ও উন্নত লেখা: [Improved Text]
+            ফিডব্যাক ও পরামর্শ (বাংলায়):
+            - [Specific point 1 in Bangla]
+            - [Specific point 2 in Bangla]
+            ---`;
+
+            const userQuery = `আমার লেখাটি পরীক্ষা করে দেখুন এবং ফিডব্যাক দিন: "${input}"`;
+
+            const payload = {
+                contents: [{ parts: [{ text: userQuery }] }],
+                systemInstruction: { parts: [{ text: systemPrompt }] },
+            };
+
+            await fetchGeminiContent(payload, 'writingFeedback');
+            checkTaskCompletion();
+        };
+        
+        const checkTaskCompletion = () => {
+            const { quizScore, fillInScore, writingFeedback, taskComplete } = state.userData;
+            
+            // Check if all parts have been attempted/completed
+            const isCompleted = quizScore > 0 && fillInScore > 0 && writingFeedback !== null;
+            
+            if (isCompleted && !taskComplete) {
+                const totalPoints = state.userData.earnedPoints;
+                const completedLessons = state.userData.completedLessons + 1;
+                
+                setState({ 
+                    userData: { 
+                        ...state.userData, 
+                        taskComplete: true,
+                        completedLessons: completedLessons
+                    } 
+                });
+                
+                updateProgress({
+                    lastTaskDate: getTodayDate(),
+                    taskComplete: true,
+                    completedLessons: completedLessons,
+                    earnedPoints: totalPoints
+                });
+                
+                showModal("টাস্ক সম্পন্ন", `অভিনন্দন! আপনি আজকের টাস্কটি সম্পন্ন করেছেন এবং আপনার মোট পয়েন্ট ${totalPoints} এ পৌঁছেছে।`);
+            }
+        };
+
+        // --- Rendering Logic (HTML Injection) ---
+
+        const Icon = (name, className = 'w-5 h-5') => `<i data-lucide="${name}" class="${className}"></i>`;
+
+        const NavItemHTML = (page, iconName, label) => `
+            <button onclick="changePage('${page}')" class="flex flex-col items-center justify-center p-2 rounded-lg transition-colors duration-200 w-full md:w-auto
+                ${state.currentPage === page
+                    ? 'bg-blue-600 text-white shadow-lg'
+                    : 'text-gray-600 hover:bg-gray-200'
+                }"
+            >
+                ${Icon(iconName, 'w-5 h-5 mb-1')}
+                <span class="text-xs font-medium bn-font">${label}</span>
+            </button>
+        `;
+
+        // --- Page Render Functions ---
+
+        const renderLevelSelection = () => `
+            <div class="p-4 md:p-8 flex items-center justify-center min-h-[80vh]">
+                <div class="bg-white p-6 md:p-10 rounded-xl shadow-2xl border-t-8 border-primary w-full max-w-lg">
+                    <h2 class="text-3xl font-bold text-gray-800 mb-6 text-center bn-font">
+                        ইংরেজি শেখার স্তর নির্বাচন
+                    </h2>
+                    <p class="text-gray-600 mb-6 text-center">অনুগ্রহ করে আপনার নাম লিখুন এবং আপনার বর্তমান দক্ষতা স্তরটি বেছে নিন।</p>
+
+                    <div class="mb-6">
+                        <label for="user-name" class="block text-gray-700 font-semibold mb-2">আপনার নাম:</label>
+                        <input type="text" id="user-name" placeholder="যেমন: করিম আহমেদ" class="w-full p-3 border-2 border-gray-300 rounded-lg focus:ring-primary focus:border-primary text-base" value="${state.userData.name || ''}" />
+                    </div>
+
+                    <div class="space-y-4 mb-8">
+                        <h4 class="text-gray-700 font-semibold mb-2">আপনার স্তর:</h4>
+                        ${['beginner', 'middle', 'higher'].map(level => {
+                            const labels = {
+                                beginner: "শুরু স্তর (Beginner) - প্রাথমিক ব্যাকরণ ও শব্দ",
+                                middle: "মধ্যবর্তী স্তর (Middle) - Tense ও বাক্য গঠন",
+                                higher: "উন্নত স্তর (Higher) - জটিল কাঠামো ও Formal লেখা"
+                            };
+                            return `
+                                <label class="flex items-center bg-gray-50 p-4 rounded-lg cursor-pointer hover:bg-blue-50 transition-colors">
+                                    <input type="radio" name="level" value="${level}" class="text-primary focus:ring-primary h-5 w-5" ${state.userData.level === level ? 'checked' : ''} />
+                                    <span class="ml-3 text-gray-700 font-medium">${labels[level]}</span>
+                                </label>
+                            `;
+                        }).join('')}
+                    </div>
+
+                    <button
+                        onclick="handleLevelSelection()"
+                        ${state.loading ? 'disabled' : ''}
+                        class="w-full bg-secondary hover:bg-green-600 text-white font-bold py-3 px-6 rounded-lg transition duration-300 flex items-center justify-center disabled:opacity-50 shadow-lg">
+                        ${state.loading ? Icon('loader-2', 'animate-spin mr-2') : Icon('check-circle', 'mr-2')}
+                        শুরু করুন
+                    </button>
+                </div>
+            </div>
+        `;
+
+        const renderHome = () => {
+            if (!state.userData.level) return renderLevelSelection();
+
+            const today = getTodayDate();
+            const isTaskAvailable = state.userData.lastTaskDate !== today;
+            const isTaskComplete = state.userData.taskComplete && state.userData.lastTaskDate === today;
+            
+            let statusText, statusColor, statusIcon, buttonText, buttonAction;
+
+            if (isTaskAvailable || !state.userData.dailyTask) {
+                statusText = "আজকের টাস্ক প্রস্তুত! অনুশীলন শুরু করুন।";
+                statusColor = "text-secondary";
+                statusIcon = 'zap';
+                buttonText = "টাস্ক লোড করুন ও শুরু করুন";
+                buttonAction = 'generateDailyTask()';
+            } else if (isTaskComplete) {
+                statusText = "অভিনন্দন! আজকের টাস্ক সফলভাবে সম্পন্ন হয়েছে।";
+                statusColor = "text-green-600";
+                statusIcon = 'check-circle';
+                buttonText = "আজকের টাস্ক পর্যালোচনা করুন";
+                buttonAction = 'changePage("daily_task")';
+            } else {
+                statusText = "চলমান টাস্ক: আপনাকে টাস্কের বাকি অংশ সম্পন্ন করতে হবে।";
+                statusColor = "text-orange-600";
+                statusIcon = 'clock';
+                buttonText = "টাস্ক চালিয়ে যান";
+                buttonAction = 'changePage("daily_task")';
+            }
+
+            return `
+                <div class="p-4 md:p-8">
+                    <!-- হিরো সেকশন -->
+                    <div class="bg-primary text-white rounded-3xl p-8 md:p-12 text-center shadow-xl mb-12"
+                        style="background-image: linear-gradient(45deg, var(--primary), #1D4ED8);">
+                        <h1 class="text-3xl md:text-5xl font-extrabold mb-2 bn-font">
+                            স্বাগতম, ${state.userData.name || 'শিক্ষার্থী'}!
+                        </h1>
+                        <p class="text-lg md:text-xl mb-6 opacity-90 bn-font">
+                            আপনার বর্তমান স্তর: 
+                            <span class="font-bold bg-white text-primary px-3 py-1 rounded-full ml-2 en-font">
+                                ${state.userData.level || 'নির্বাচন করুন'}
+                            </span>
+                        </p>
+                        <div class="text-xl font-bold flex items-center justify-center space-x-2 ${statusColor}">
+                            ${Icon(statusIcon, 'w-6 h-6')}
+                            <span>${statusText}</span>
+                        </div>
+                    </div>
+
+                    <!-- টাস্ক অ্যাকশন কার্ড -->
+                    <div class="bg-white p-6 rounded-xl shadow-lg border-t-4 border-secondary text-center">
+                        <h2 class="text-2xl font-bold text-gray-800 mb-4 bn-font">আজকের অগ্রগতি</h2>
+                        <p class="text-gray-600 mb-6">আজকের টাস্ক সম্পূর্ণ করে আপনার দক্ষতা এবং পয়েন্ট বাড়িয়ে নিন।</p>
+                        
+                        <button
+                            onclick="${buttonAction}"
+                            ${state.loading ? 'disabled' : ''}
+                            class="bg-accent hover:bg-orange-600 text-white font-bold py-3 px-8 rounded-full text-lg transition duration-300 transform hover:scale-105 flex items-center justify-center mx-auto disabled:opacity-50 shadow-lg bn-font">
+                            ${state.loading ? Icon('loader-2', 'animate-spin mr-2') : Icon('zap', 'mr-2')}
+                            ${buttonText}
+                        </button>
+                    </div>
+
+                    <!-- 3000 Word Goal Mockup -->
+                    <div class="mt-12 text-center">
+                        <h3 class="text-xl font-bold text-gray-700 mb-3">৩০০০ শব্দ ভান্ডার লক্ষ্য</h3>
+                        <p class="text-sm text-gray-500 mb-2">মোট অর্জিত পয়েন্ট অনুযায়ী আপনার শব্দ ভান্ডার বৃদ্ধি পাচ্ছে।</p>
+                        <div class="w-full bg-gray-300 rounded-full h-4 relative">
+                            <div class="bg-primary h-4 rounded-full transition-all duration-500" style="width: ${Math.min(100, (state.userData.earnedPoints / 3000) * 100)}%"></div>
+                            <span class="absolute right-2 top-0 bottom-0 text-white text-xs font-bold leading-4 en-font">${Math.round((state.userData.earnedPoints / 3000) * 100)}%</span>
+                        </div>
+                        <p class="mt-2 text-base font-semibold text-gray-700 en-font">পয়েন্ট: ${state.userData.earnedPoints} / 3000</p>
+                    </div>
+                </div>
+            `;
+        };
+
+        const renderDailyTask = () => {
+            const { dailyTask, quizScore, fillInScore, writingFeedback } = state.userData;
+
+            if (state.loading && !dailyTask) {
+                return `<div class="p-8 text-center bn-font">${Icon('loader-2', 'animate-spin inline-block mr-2 w-8 h-8')} আজকের টাস্ক লোড হচ্ছে...</div>`;
+            }
+
+            if (!dailyTask) {
+                return `
+                    <div class="p-8 text-center bn-font">
+                        <h2 class="text-3xl font-bold text-red-500 mb-4">টাস্ক লোড হয়নি</h2>
+                        <p class="text-gray-600 mb-6">অনুগ্রহ করে হোম পেজে ফিরে গিয়ে "টাস্ক লোড করুন ও শুরু করুন" বাটনে ক্লিক করুন।</p>
+                        <button onclick="changePage('home')" class="bg-primary hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg">
+                            হোম পেজে যান
+                        </button>
+                    </div>
+                `;
+            }
+
+            const WritingSection = `
+                <div class="bg-white p-6 rounded-xl shadow-lg border-t-4 border-blue-500 mb-8">
+                    <h3 class="text-2xl font-bold text-blue-700 mb-4 flex items-center space-x-2">
+                        ${Icon('pen-tool', 'w-6 h-6')}
+                        <span>টাস্ক ১: লেখা অনুশীলন (Writing)</span>
+                        ${writingFeedback ? Icon('check-circle', 'text-green-500 w-6 h-6') : ''}
+                    </h3>
+                    <p class="text-gray-700 mb-4 font-semibold">${dailyTask.writing_prompt_bn}</p>
+
+                    <textarea
+                        id="writing-input"
+                        class="w-full h-32 p-4 border-2 border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 resize-none text-base en-font"
+                        placeholder="আপনার লেখা এখানে লিখুন..."
+                        oninput="setState({ userData: { ...state.userData, writingInput: this.value } })"
+                    >${state.userData.writingInput}</textarea>
+
+                    <button
+                        onclick="generateWritingFeedback()"
+                        ${state.loading || writingFeedback ? 'disabled' : ''}
+                        class="mt-4 bg-accent hover:bg-orange-600 text-white font-bold py-3 px-6 rounded-lg transition duration-300 flex items-center justify-center disabled:opacity-50 shadow-md">
+                        ${state.loading && !writingFeedback ? Icon('loader-2', 'animate-spin mr-2') : Icon('send', 'mr-2')}
+                        ফিডব্যাক পান
+                    </button>
+
+                    ${writingFeedback ? `
+                        <div class="mt-6 p-5 bg-blue-50 border-l-4 border-blue-500 rounded-lg">
+                            <h4 class="text-xl font-bold text-blue-800 mb-3">AI ফিডব্যাক:</h4>
+                            <pre class="whitespace-pre-wrap text-gray-700 leading-relaxed en-font">${writingFeedback}</pre>
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+
+            const QuizSection = `
+                <div class="bg-white p-6 rounded-xl shadow-lg border-t-4 border-secondary mb-8">
+                    <h3 class="text-2xl font-bold text-secondary mb-4 flex items-center justify-between">
+                        <span class="flex items-center space-x-2">${Icon('list-checks', 'w-6 h-6')} <span>টাস্ক ২: কুইজ (Quiz)</span></span>
+                        <span class="text-lg font-bold ${quizScore > 0 ? 'text-green-600' : 'text-gray-500'}">${quizScore}/5</span>
+                    </h3>
+                    
+                    <form id="quiz-form" onsubmit="event.preventDefault(); submitQuiz();">
+                        ${dailyTask.quiz_questions.map((q, qIndex) => `
+                            <div class="mb-5 p-4 border-b border-gray-200">
+                                <p class="font-semibold text-lg mb-3 en-font">${qIndex + 1}. ${q.q_en}</p>
+                                <div class="space-y-2">
+                                    ${q.options_en.map(option => {
+                                        const userAnswer = state.userData.quizAnswers[qIndex];
+                                        const isChecked = userAnswer === option;
+                                        const isCorrect = quizScore > 0 && option === q.correct_en;
+                                        const isWrong = quizScore > 0 && isChecked && option !== q.correct_en;
+                                        
+                                        let optionClass = 'bg-gray-50 hover:bg-gray-100';
+                                        if (quizScore > 0) {
+                                            if (isCorrect) optionClass = 'bg-green-100 border-green-500 border-2';
+                                            else if (isWrong) optionClass = 'bg-red-100 border-red-500 border-2';
+                                        }
+
+                                        return `
+                                            <label class="flex items-center p-3 rounded-lg cursor-pointer transition-colors ${optionClass}">
+                                                <input type="radio" 
+                                                    name="quiz-${qIndex}" 
+                                                    value="${option}" 
+                                                    class="text-primary focus:ring-primary h-4 w-4" 
+                                                    onchange="handleTaskInput('quiz', ${qIndex}, this.value)"
+                                                    ${isChecked ? 'checked' : ''}
+                                                    ${quizScore > 0 ? 'disabled' : ''}
+                                                />
+                                                <span class="ml-3 text-gray-800 en-font">${option}</span>
+                                            </label>
+                                        `;
+                                    }).join('')}
+                                </div>
+                                ${quizScore > 0 ? `
+                                    <p class="mt-2 text-sm text-gray-600 bn-font">ব্যাখ্যা: ${q.explanation_bn}</p>
+                                ` : ''}
+                            </div>
+                        `).join('')}
+                        <button type="submit" 
+                            ${quizScore > 0 ? 'disabled' : ''}
+                            class="mt-4 bg-primary hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg transition duration-300 disabled:opacity-50">
+                            কুইজ জমা দিন
+                        </button>
+                    </form>
+                </div>
+            `;
+            
+            const FillInSection = `
+                <div class="bg-white p-6 rounded-xl shadow-lg border-t-4 border-accent mb-8">
+                    <h3 class="text-2xl font-bold text-accent mb-4 flex items-center justify-between">
+                        <span class="flex items-center space-x-2">${Icon('edit-3', 'w-6 h-6')} <span>টাস্ক ৩: শূন্যস্থান পূরণ (Fill-in)</span></span>
+                        <span class="text-lg font-bold ${fillInScore > 0 ? 'text-green-600' : 'text-gray-500'}">${fillInScore}/5</span>
+                    </h3>
+                    
+                    <form id="fillin-form" onsubmit="event.preventDefault(); submitFillInTheBlanks();">
+                        ${dailyTask.fill_in_the_blanks.map((item, index) => {
+                            const sentenceHtml = item.sentence_en.replace('[BLANK]', 
+                                `<input type="text" id="fillin-${index}" 
+                                    class="w-24 p-1 border-b-2 border-dashed ${fillInScore > 0 && state.userData.fillInAnswers[index]?.trim().toLowerCase() === item.correct_en.toLowerCase() ? 'border-green-500 bg-green-50' : fillInScore > 0 ? 'border-red-500 bg-red-50' : 'border-gray-400'} focus:border-blue-500 outline-none en-font inline-block mx-1" 
+                                    placeholder="..." 
+                                    oninput="handleTaskInput('fillIn', ${index}, this.value)"
+                                    value="${state.userData.fillInAnswers[index] || ''}"
+                                    ${fillInScore > 0 ? 'disabled' : ''}
+                                />`
+                            );
+                            return `
+                                <div class="mb-5 p-4 border-b border-gray-200">
+                                    <p class="font-semibold text-lg mb-2 en-font">${index + 1}. ${sentenceHtml}</p>
+                                    <p class="text-sm text-gray-500 bn-font">ইঙ্গিত: ${item.hint_bn}</p>
+                                    ${fillInScore > 0 ? `
+                                        <p class="mt-2 text-sm font-semibold text-green-600 en-font">সঠিক উত্তর: ${item.correct_en}</p>
+                                    ` : ''}
+                                </div>
+                            `;
+                        }).join('')}
+                        <button type="submit" 
+                            ${fillInScore > 0 ? 'disabled' : ''}
+                            class="mt-4 bg-primary hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg transition duration-300 disabled:opacity-50">
+                            উত্তর জমা দিন
+                        </button>
+                    </form>
+                </div>
+            `;
+
+            return `
+                <div class="p-4 md:p-8">
+                    <h2 class="text-3xl font-bold text-gray-800 mb-8 text-center bn-font">
+                        আজকের দৈনিক টাস্ক
+                    </h2>
+                    ${WritingSection}
+                    ${QuizSection}
+                    ${FillInSection}
+                </div>
+            `;
+        };
+
+        const renderVocabGrammar = () => `
+            <div class="p-4 md:p-8 bn-font">
+                <h2 class="text-3xl font-bold text-gray-800 mb-8 text-center">
+                    গ্রামার ও ভোকাবুলারি গাইড
+                </h2>
+
+                <div class="bg-white p-6 rounded-xl shadow-lg border-t-4 border-secondary mb-8">
+                    <h3 class="text-2xl font-bold text-blue-700 mb-4 flex items-center space-x-2">
+                        ${Icon('book-open', 'w-6 h-6')} 
+                        <span>সাধারণ গ্রামার রুলস</span>
+                    </h3>
+                    
+                    <div class="space-y-4">
+                        <div class="bg-blue-50 p-4 rounded-lg border-l-4 border-blue-500">
+                            <p class="font-bold text-lg text-blue-800">রুল ১: Subject-Verb Agreement</p>
+                            <p class="text-gray-700 mt-2 leading-relaxed">
+                                যখন Subject একবচন (singular) হয়, তখন Verb-এর সঙ্গে 's' বা 'es' যোগ হয় (Present Simple Tense-এ)।
+                            </p>
+                            <p class="mt-2 text-sm italic en-font">উদাহরণ: He goes to school. (সে স্কুলে যায়।)</p>
+                        </div>
+                        <div class="bg-blue-50 p-4 rounded-lg border-l-4 border-blue-500">
+                            <p class="font-bold text-lg text-blue-800">রুল ২: Preposition of Time ('in', 'on', 'at')</p>
+                            <p class="text-gray-700 mt-2 leading-relaxed">
+                                **At:** সুনির্দিষ্ট সময়ের জন্য (at 5 PM)। **On:** দিনের জন্য (on Monday)। **In:** মাস, বছর, ঋতু বা দীর্ঘ সময়ের জন্য (in July, in 2024)।
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Vocabulary List Mockup -->
+                <div class="bg-white p-6 rounded-xl shadow-lg border-t-4 border-accent">
+                    <h3 class="text-2xl font-bold text-accent mb-4 flex items-center space-x-2">
+                        ${Icon('grid-3x3', 'w-6 h-6')}
+                        <span>আপনার শেখা শব্দসমূহ (Top 5)</span>
+                    </h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        ${[
+                            { word: "Resilience", meaning: "নমনীয়তা, দ্রুত মানিয়ে নেওয়ার ক্ষমতা" },
+                            { word: "Diligent", meaning: "কঠোর পরিশ্রমী, অধ্যবসায়ী" },
+                            { word: "Ephemeral", meaning: "ক্ষণস্থায়ী" },
+                            { word: "Ubiquitous", meaning: "সর্বব্যাপী, সব জায়গায় বিদ্যমান" },
+                            { word: "Nurture", meaning: "লালন করা, যত্ন করা" }
+                        ].map(item => `
+                            <div class="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                                <p class="text-xl font-bold text-gray-800 en-font">${item.word}</p>
+                                <p class="text-sm text-gray-600 bn-font">${item.meaning}</p>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            </div>
+        `;
+
+        const renderProfile = () => {
+            const { name, level, completedLessons, earnedPoints, userId } = state.userData;
+            const progress = Math.min(100, (completedLessons % 10) * 10);
+            
+            const levelNames = {
+                beginner: "শুরু স্তর",
+                middle: "মধ্যবর্তী স্তর",
+                higher: "উন্নত স্তর"
+            };
+
+            const StatCardHTML = (title, value, color, iconName) => `
+                <div class="bg-gray-50 p-5 rounded-xl shadow-md flex items-center space-x-4">
+                    <div class="p-3 rounded-full bg-${color}-100">
+                        ${Icon(iconName, 'w-6 h-6 text-' + color + '-600')}
+                    </div>
+                    <div>
+                        <p class="text-sm font-medium text-gray-500 bn-font">${title}</p>
+                        <p class="text-2xl font-bold text-${color}-700 en-font">${value}</p>
+                    </div>
+                </div>
+            `;
+
+            return `
+                <div class="p-4 md:p-8 bn-font">
+                    <h2 class="text-3xl font-bold text-gray-800 mb-8 text-center">
+                        আপনার অগ্রগতি ড্যাশবোর্ড
+                    </h2>
+                    <div class="bg-white p-6 rounded-xl shadow-2xl border-t-8 border-primary">
+                        <div class="flex items-center space-x-4 mb-6 pb-4 border-b">
+                            <div class="bg-blue-100 p-3 rounded-full">
+                                ${Icon('user', 'w-8 h-8 text-blue-600')}
+                            </div>
+                            <div>
+                                <h3 class="text-2xl font-bold text-gray-800">${name || 'অপরিচিত ইউজার'}</h3>
+                                <p class="text-sm text-gray-500 break-all">ইউজার আইডি: ${userId || "অপেক্ষমাণ..."}</p>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8">
+                            ${StatCardHTML("বর্তমান স্তর", level ? levelNames[level] : '—', "blue", "award")}
+                            ${StatCardHTML("সম্পন্ন টাস্ক", completedLessons, "green", "book-open")}
+                            ${StatCardHTML("মোট পয়েন্ট", earnedPoints, "orange", "zap")}
+                        </div>
+
+                        <!-- Progress Bar -->
+                        <h4 class="text-xl font-bold text-gray-700 mb-4">স্তর অগ্রগতি</h4>
+                        <div class="w-full bg-gray-200 rounded-full h-3 mb-4">
+                            <div class="bg-blue-600 h-3 rounded-full" style="width: ${progress}%"></div>
+                        </div>
+                        <p class="text-sm text-gray-600 text-center">
+                            ${10 - (completedLessons % 10)} টি টাস্ক বাকি, পরবর্তী স্তরে উন্নীত হতে!
+                        </p>
+                    </div>
+                </div>
+            `;
+        };
+
+
+        /** Main rendering function */
+        window.updateUI = () => {
+            let contentHTML = '';
+            
+            // Redirect to level selection if not set
+            if (!state.userData.level && state.currentPage !== 'level_selection') {
+                contentHTML = renderLevelSelection();
+            } else {
+                switch (state.currentPage) {
+                    case 'home': contentHTML = renderHome(); break;
+                    case 'daily_task': contentHTML = renderDailyTask(); break;
+                    case 'vocabulary_grammar': contentHTML = renderVocabGrammar(); break;
+                    case 'profile': contentHTML = renderProfile(); break;
+                    case 'level_selection': contentHTML = renderLevelSelection(); break; // Explicitly handle level selection
+                    default: contentHTML = renderHome(); break;
+                }
+            }
+
+            // Inject content into the main area
+            document.getElementById('main-content').innerHTML = contentHTML;
+
+            // Update Navigation Bar
+            const navItems = [
+                { page: 'home', icon: 'home', label: 'হোম' },
+                { page: 'daily_task', icon: 'check-square', label: 'আজকের টাস্ক' },
+                { page: 'vocabulary_grammar', icon: 'book-open', label: 'গ্রামার গাইড' },
+                { page: 'profile', icon: 'user', label: 'প্রোফাইল' }
+            ];
+
+            const desktopNav = document.getElementById('desktop-nav');
+            const mobileNav = document.getElementById('mobile-nav-items');
+
+            if (desktopNav) desktopNav.innerHTML = navItems.map(item => NavItemHTML(item.page, item.icon, item.label)).join('');
+            if (mobileNav) mobileNav.innerHTML = navItems.map(item => NavItemHTML(item.page, item.icon, item.label)).join('');
+
+            // Call Lucide to render icons after content injection
+            lucide.createIcons();
+        };
+        
+        // Initial setup on window load
+        window.onload = setupApp;
+    </script>
+</body>
+</html>

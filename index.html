@@ -3,11 +3,73 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Daily English Task - প্রতিদিনের ইংরেজি টাস্ক</title>
+    
+    <!-- SEO Meta Tags -->
+    <title>Learning Moment - প্রতিদিনের ইংরেজি টাস্ক ও অনুশীলন</title>
+    <meta name="description" content="Learning Moment এ প্রতিদিন ইংরেজি শিখুন। কুইজ, লেখার অনুশীলন, ব্যাকরণ টিপস এবং AI ফিডব্যাক সহ আপনার ইংরেজি দক্ষতা উন্নত করুন।">
+    <meta name="keywords" content="Learning Moment, Daily English, ইংরেজি শেখা, English Practice, Grammar, Vocabulary, English Quiz, Writing Practice, AI Feedback">
+    <meta name="author" content="Learning Moment">
+    <meta name="robots" content="index, follow">
+
+    <!-- Open Graph Meta Tags -->
+    <meta property="og:title" content="Learning Moment - প্রতিদিনের ইংরেজি টাস্ক">
+    <meta property="og:description" content="প্রতিদিনের ইংরেজি অনুশীলন, কুইজ, ফিডব্যাক ও গ্রামার টিপস — সব একসাথে Learning Moment এ">
+    <meta property="og:image" content="https://learningmoment.online/logo.png">
+    <meta property="og:url" content="https://learningmoment.online/">
+    <meta property="og:type" content="website">
+    <meta property="og:locale" content="bn_BD">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="Learning Moment - Daily English Practice">
+    <meta name="twitter:description" content="প্রতিদিনের ইংরেজি অনুশীলন অ্যাপ">
+    <meta name="twitter:image" content="https://learningmoment.online/logo.png">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <link rel="icon" type="image/png" href="logo.png">
+    <link rel="apple-touch-icon" href="logo.png">
+
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://learningmoment.online/" />
+
+    <!-- Schema.org Structured Data -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "Learning Moment - Daily English Task",
+        "description": "প্রতিদিনের ইংরেজি অনুশীলনের স্মার্ট ওয়েব অ্যাপ",
+        "url": "https://learningmoment.online/",
+        "applicationCategory": "EducationalApplication",
+        "operatingSystem": "Web Browser",
+        "permissions": "browser",
+        "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "USD"
+        },
+        "author": {
+            "@type": "Organization",
+            "name": "Learning Moment"
+        },
+        "inLanguage": "bn",
+        "featureList": [
+            "Daily English Tasks",
+            "Interactive Quiz",
+            "Writing Practice", 
+            "Grammar Tips",
+            "AI Feedback",
+            "Progress Tracking"
+        ]
+    }
+    </script>
+
     <!-- Load Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Load Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
+    
     <style>
         /* Custom Fonts for Bangla/English */
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
@@ -34,15 +96,32 @@
         #main-content {
             flex-grow: 1;
         }
+
+        /* Hide SPA content until JS loads */
+        .js-hidden { display: none; }
     </style>
 </head>
 <body class="bg-gray-100 bn-font">
 
+    <!-- Noscript content for SEO -->
+    <noscript>
+        <div class="p-8 text-center bg-white min-h-screen flex items-center justify-center">
+            <div>
+                <h1 class="text-3xl font-bold text-blue-600 mb-4">Learning Moment - প্রতিদিনের ইংরেজি টাস্ক</h1>
+                <p class="text-lg text-gray-700 mb-4">প্রতিদিনের ইংরেজি অনুশীলন, কুইজ, লেখার অনুশীলন, এবং AI ফিডব্যাক সহ আপনার ইংরেজি দক্ষতা উন্নত করুন।</p>
+                <p class="text-red-600 font-semibold">জাভাস্ক্রিপ্ট সক্রিয় করুন অ্যাপ ব্যবহারের জন্য।</p>
+            </div>
+        </div>
+    </noscript>
+
     <div id="app-container" class="min-h-screen">
-        <!-- Header (Desktop/Tablet) -->
+        <!-- Header (Desktop/Tablet) with Logo -->
         <header id="desktop-header" class="hidden md:flex bg-white shadow-md p-4 justify-between items-center sticky top-0 z-10">
-            <div class="text-2xl font-extrabold text-blue-600 en-font">
-                DAILY ENGLISH
+            <div class="flex items-center">
+                <img src="logo.png" alt="Learning Moment Logo" class="w-8 h-8 rounded-full mr-3">
+                <div class="text-xl font-extrabold text-blue-600 en-font">
+                    LEARNING MOMENT
+                </div>
             </div>
             <nav id="desktop-nav" class="flex space-x-4">
                 <!-- Nav Items will be generated here -->
@@ -544,13 +623,13 @@
                         }).join('')}
                     </div>
 
-                    <button
-                        onclick="handleLevelSelection()"
-                        ${state.loading ? 'disabled' : ''}
-                        class="w-full bg-secondary hover:bg-green-600 text-white font-bold py-3 px-6 rounded-lg transition duration-300 flex items-center justify-center disabled:opacity-50 shadow-lg">
-                        ${state.loading ? Icon('loader-2', 'animate-spin mr-2') : Icon('check-circle', 'mr-2')}
-                        শুরু করুন
-                    </button>
+         <button
+    onclick="handleLevelSelection()"
+    ${state.loading ? 'disabled' : ''}
+    class="w-full bg-secondary hover:bg-green-600 text-black font-bold py-3 px-6 rounded-lg transition duration-300 flex items-center justify-center disabled:opacity-50 shadow-lg">
+    ${state.loading ? Icon('loader-2', 'animate-spin mr-2') : Icon('check-circle', 'mr-2')}
+    শুরু করুন
+</button>
                 </div>
             </div>
         `;

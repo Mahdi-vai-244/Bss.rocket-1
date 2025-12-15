@@ -1,0 +1,85 @@
+body {
+  font-family: 'Hind Siliguri', sans-serif;
+}
+
+.gradient-bg {
+  background: linear-gradient(135deg, #0f172a 0%, #1e40af 100%);
+}
+
+/* গ্যালারি স্টাইল */
+#certGallery {
+  opacity: 0;
+  max-height: 0;
+  overflow: hidden;
+  transition: all 0.5s ease;
+}
+
+#certGallery.active {
+  opacity: 1;
+  max-height: 1000px;
+}
+
+/* ছবি হোভার এফেক্ট */
+.gallery-item {
+  transition: transform 0.3s ease;
+}
+
+.gallery-item:hover {
+  transform: translateY(-5px);
+}
+
+.gallery-item img {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.gallery-item:hover img {
+  transform: scale(1.05);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+}
+
+/* গ্যালারি বাটন */
+.gallery-btn {
+  transition: all 0.3s ease;
+}
+
+.gallery-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(59, 130, 246, 0.4);
+}
+
+/* মোবাইল মেনু */
+#mobileMenu {
+  transition: all 0.3s ease;
+}
+
+/* নেভ লিংক স্টাইল */
+.nav-link {
+  cursor: pointer;
+}
+
+/* স্ক্রোল আচরণ */
+html {
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+/* ফেড ইন এনিমেশন */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-in {
+  animation: fadeIn 0.5s ease;
+}

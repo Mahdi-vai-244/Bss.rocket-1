@@ -5,7 +5,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <title>Learning Moment - Homna | Ramadan Spoken English Course 2026 </title>
+  <title>Ramadan Spoken English Course 2026 | Learning Moment - Homna</title>
   <meta name="description"
     content="২০২৬ সালের রমজানে ৩০ দিনের ফুল স্পোকেন ইংলিশ আবাসিক কোর্স। থাকা-খাওয়া ও ২৪ ঘণ্টা গাইডেন্স সহ ইংরেজি শেখার সেরা সুযোগ। স্থান: হোমনা, কুমিল্লা।">
   <meta name="keywords"
@@ -73,7 +73,7 @@
         <!-- গোলাকার লোগো -->
         <img src="assets/logo.png" alt="LM Logo" class="w-12 h-12 object-contain bg-transparent">
         <!-- ওয়ার্ডমার্ক লোগো -->
-        <img src="assets/wordmark.png" alt="Learning Moment" class="h-8 md:h-10 w-auto object-contain">
+        <img src="assets/wordmark.png" alt="Learning Moment" class="h-8 md:h-20 w-auto object-contain">
       </div>
 
       <!-- মেনু (ডেস্কটপ) -->
@@ -287,7 +287,7 @@
         <p class="text-sm text-gray-500 mb-6 italic">(যারা উত্তীর্ণ হতে পারেনি তাদের মান অনুযায়ী তারাও সার্টিফিকেট পাবে।
           অংশগ্রহণকারী সবাই সার্টিফিকেট পাবে।)</p>
 
-        <a href="https://drive.google.com/drive/folders/1TDgnBnLS8f9t_TMwV80R0I5wmEbiWFdO?usp=sharing" target="_blank"
+        <a href="https://postimg.cc/gallery/1yWM25w" target="_blank"
           class="gallery-btn bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition inline-flex items-center justify-center gap-2 shadow-lg hover:shadow-xl transform hover:-translate-y-1">
           <i class="fa-regular fa-images"></i>
           <span>সার্টিফিকেটের নমুনা দেখুন</span>
@@ -306,13 +306,13 @@
         <div class="absolute top-0 right-0 bg-red-600 text-white text-xs font-bold px-3 py-1 rounded-bl-lg">সহজলভ্য অফার
         </div>
         <h3 class="text-2xl font-bold mb-4">প্যাকেজ ডিটেইলস</h3>
-        <div class="text-5xl font-bold text-yellow-400 mb-2">৳৩০০০ <span class="text-lg text-gray-400 font-normal">/
+        <div class="text-5xl font-bold text-yellow-400 mb-2">৳3000 <span class="text-lg text-gray-400 font-normal">/
             সর্বমোট</span></div>
         <p class="text-gray-400 mb-6">পুরো রমজান মাসের জন্য</p>
         <ul class="space-y-3 mb-8">
           <li class="flex items-center"><i class="fa-solid fa-check text-green-400 mr-3"></i> থাকা ও খাওয়া অন্তর্ভুক্ত
           </li>
-          <li class="flex items-center"><i class="fa-solid fa-check text-green-400 mr-3"></i> প্র্যাকটিস শিট ফ্রি
+          <li class="flex items-center"><i class="fa-solid fa-check text-green-400 mr-3"></i> বই ও প্র্যাকটিস শিট ফ্রি
           </li>
           <li class="flex items-center"><i class="fa-solid fa-check text-green-400 mr-3"></i> ২৪ ঘণ্টা গাইডেন্স</li>
           <li class="flex items-center">
@@ -673,6 +673,13 @@
           <div class="bg-green-900/30 text-green-300 text-xs px-3 py-1 rounded-full border border-green-800">
             <i class="fa-solid fa-check-circle mr-1"></i> ১০০% সন্তুষ্টি
           </div>
+
+          <!-- ভিজিটর কাউন্টার বাটন -->
+          <button id="visitorCounterBtn"
+            class="bg-purple-900/30 hover:bg-purple-900/50 text-purple-300 text-xs px-3 py-1 rounded-full border border-purple-800 transition-all duration-300 transform hover:scale-105 cursor-pointer">
+            <i class="fa-solid fa-users mr-1"></i>
+            <span id="totalVisitorText">মোট ভিজিটর: লোড হচ্ছে...</span>
+          </button>
         </div>
 
         <!-- স্ক্রোল টপ বাটন -->
@@ -686,6 +693,135 @@
       </div>
     </div>
   </footer>
+
+  <!-- ভিজিটর ডিটেইলস মডাল -->
+  <div id="visitorModal" class="fixed inset-0 bg-black/60 z-[100] hidden items-center justify-center p-4">
+    <div class="bg-gray-900 border border-gray-800 rounded-2xl w-full max-w-md overflow-hidden">
+      <!-- মডাল হেডার -->
+      <div class="bg-gradient-to-r from-purple-900 to-purple-800 p-5 text-white">
+        <div class="flex justify-between items-center">
+          <h3 class="text-xl font-bold">🚀 ওয়েবসাইট ট্রাফিক রিপোর্ট</h3>
+          <button id="closeVisitorModal" class="text-2xl hover:text-purple-300 transition">&times;</button>
+        </div>
+        <p class="text-sm text-purple-200 mt-1">রিয়েল-টাইম ভিজিটর স্ট্যাটিস্টিকস</p>
+      </div>
+
+      <!-- মডাল বডি -->
+      <div class="p-6 space-y-5">
+        <!-- টোটাল ভিজিটর -->
+        <div class="bg-gray-800/50 rounded-xl p-4 border border-gray-700">
+          <div class="flex justify-between items-center mb-2">
+            <div class="flex items-center gap-2">
+              <div class="w-10 h-10 bg-purple-900/30 rounded-lg flex items-center justify-center">
+                <i class="fa-solid fa-globe text-purple-400"></i>
+              </div>
+              <div>
+                <h4 class="font-bold text-white">মোট ভিজিটর</h4>
+                <p class="text-xs text-gray-400">শুরু থেকে এখন পর্যন্ত</p>
+              </div>
+            </div>
+            <div class="text-right">
+              <div class="text-2xl font-bold text-white" id="modalTotalVisitors">০</div>
+              <div class="text-xs text-green-400 flex items-center gap-1">
+                <i class="fa-solid fa-arrow-up"></i>
+                <span id="modalTotalChange">+০ আজ</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- আজকের ভিজিটর -->
+        <div class="bg-gray-800/50 rounded-xl p-4 border border-gray-700">
+          <div class="flex justify-between items-center mb-2">
+            <div class="flex items-center gap-2">
+              <div class="w-10 h-10 bg-blue-900/30 rounded-lg flex items-center justify-center">
+                <i class="fa-solid fa-calendar-day text-blue-400"></i>
+              </div>
+              <div>
+                <h4 class="font-bold text-white">আজকের ভিজিটর</h4>
+                <p class="text-xs text-gray-400" id="todayDate">আজকের তারিখ</p>
+              </div>
+            </div>
+            <div class="text-right">
+              <div class="text-2xl font-bold text-white" id="modalTodayVisitors">০</div>
+              <div class="text-xs text-blue-400">Live</div>
+            </div>
+          </div>
+          <div class="mt-3 bg-gray-900 rounded-lg h-2">
+            <div id="todayProgress" class="bg-gradient-to-r from-blue-500 to-blue-400 h-full rounded-lg"
+              style="width: 0%"></div>
+          </div>
+        </div>
+
+        <!-- সর্বোচ্চ ভিজিটর -->
+        <div class="bg-gray-800/50 rounded-xl p-4 border border-gray-700">
+          <div class="flex justify-between items-center">
+            <div class="flex items-center gap-2">
+              <div class="w-10 h-10 bg-green-900/30 rounded-lg flex items-center justify-center">
+                <i class="fa-solid fa-trophy text-green-400"></i>
+              </div>
+              <div>
+                <h4 class="font-bold text-white">সর্বোচ্চ ভিজিটর</h4>
+                <p class="text-xs text-gray-400" id="peakDate">তারিখ</p>
+              </div>
+            </div>
+            <div class="text-right">
+              <div class="text-2xl font-bold text-white" id="modalPeakVisitors">০</div>
+              <div class="text-xs text-gray-400">রেকর্ড</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- সাপ্তাহিক স্ট্যাটস -->
+        <div class="bg-gray-800/50 rounded-xl p-4 border border-gray-700">
+          <h4 class="font-bold text-white mb-3">সপ্তাহের স্ট্যাটস</h4>
+          <div class="grid grid-cols-7 gap-1">
+            <div class="text-center">
+              <div class="text-xs text-gray-400">রবি</div>
+              <div class="text-sm font-bold text-white" id="weekSun">০</div>
+            </div>
+            <div class="text-center">
+              <div class="text-xs text-gray-400">সোম</div>
+              <div class="text-sm font-bold text-white" id="weekMon">০</div>
+            </div>
+            <div class="text-center">
+              <div class="text-xs text-gray-400">মঙ্গল</div>
+              <div class="text-sm font-bold text-white" id="weekTue">০</div>
+            </div>
+            <div class="text-center">
+              <div class="text-xs text-gray-400">বুধ</div>
+              <div class="text-sm font-bold text-white" id="weekWed">০</div>
+            </div>
+            <div class="text-center">
+              <div class="text-xs text-gray-400">বৃহঃ</div>
+              <div class="text-sm font-bold text-white" id="weekThu">০</div>
+            </div>
+            <div class="text-center">
+              <div class="text-xs text-gray-400">শুক্র</div>
+              <div class="text-sm font-bold text-white" id="weekFri">০</div>
+            </div>
+            <div class="text-center">
+              <div class="text-xs text-gray-400">শনি</div>
+              <div class="text-sm font-bold text-white" id="weekSat">০</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- রিফ্রেশ বাটন -->
+        <div class="pt-4">
+          <button id="refreshVisitorStats"
+            class="w-full bg-gradient-to-r from-purple-700 to-purple-600 hover:from-purple-600 hover:to-purple-500 text-white font-semibold py-3 rounded-lg transition flex items-center justify-center gap-2">
+            <i class="fa-solid fa-rotate"></i>
+            <span>স্ট্যাটস রিফ্রেশ করুন</span>
+          </button>
+          <p class="text-center text-gray-500 text-xs mt-3">
+            <i class="fa-solid fa-info-circle mr-1"></i>
+            প্রতিবার পৃষ্ঠা রিফ্রেশে ভিজিটর সংখ্যা বাড়ে
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <!-- Custom JavaScript -->
   <script src="script.js"></script>

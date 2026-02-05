@@ -17,6 +17,9 @@ document.addEventListener('DOMContentLoaded', function() {
   
   // ছবি লোড চেক
   checkImages();
+  
+  // ভিজিটর কাউন্টার সিস্টেম
+  initVisitorSystem();
 });
 
 // নেভিগেশন ফাংশন
@@ -219,6 +222,233 @@ function checkImages() {
       }
     }, 1000);
   }
+}
+
+// ভিজিটর সিস্টেম মেইন ফাংশন
+function initVisitorSystem() {
+  const visitorBtn = document.getElementById('visitorCounterBtn');
+  const modal = document.getElementById('visitorModal');
+  const closeBtn = document.getElementById('closeVisitorModal');
+  const refreshBtn = document.getElementById('refreshVisitorStats');
+  
+  // ভিজিটর ডাটা ইনিশিয়ালাইজ
+  let visitorData = initializeVisitorData();
+  
+  // বাটনে ক্লিক ইভেন্ট
+  visitorBtn.addEventListener('click', function() {
+    // নতুন ভিজিটর যোগ করুন
+    incrementVisitor(visitorData);
+    
+    // মডাল শো করুন
+    showVisitorModal(visitorData);
+  });
+  
+  // মডাল বন্ধ করুন
+  closeBtn.addEventListener('click', function() {
+    modal.classList.add('hidden');
+  });
+  
+  // বাইরে ক্লিক করলে মডাল বন্ধ
+  modal.addEventListener('click', function(e) {
+    if (e.target === modal) {
+      modal.classList.add('hidden');
+    }
+  });
+  
+  // রিফ্রেশ বাটন
+  refreshBtn.addEventListener('click', function() {
+    incrementVisitor(visitorData);
+    updateModalStats(visitorData);
+    showNotification('ভিজিটর স্ট্যাটস রিফ্রেশ করা হয়েছে!', 'success');
+  });
+  
+  // প্রথম লোডে ভিজিটর আপডেট
+  incrementVisitor(visitorData);
+  updateVisitorButton(visitorData);
+  
+  // প্রতি 5 মিনিট পর পর অটো আপডেট
+  setInterval(() => {
+    if (!modal.classList.contains('hidden')) {
+      incrementVisitor(visitorData);
+      updateModalStats(visitorData);
+    }
+  }, 300000); // 5 মিনিট
+}
+
+// ভিজিটর ডাটা ইনিশিয়ালাইজ
+function initializeVisitorData() {
+  const today = new Date().toDateString();
+  const defaultData = {
+    total: 1257,
+    today: 42,
+    todayDate: today,
+    peak: 89,
+    peakDate: today,
+    dailyStats: {},
+    weeklyStats: [45, 38, 52, 47, 61, 55, 42]
+  };
+  
+  // localStorage থেকে ডাটা লোড
+  const savedData = JSON.parse(localStorage.getItem('learningMomentVisitors') || '{}');
+  
+  // ডেট রিসেট চেক
+  if (savedData.todayDate !== today) {
+    // নতুন দিনের জন্য রিসেট
+    savedData.today = 0;
+    savedData.todayDate = today;
+    savedData.weeklyStats = savedData.weeklyStats || defaultData.weeklyStats;
+  }
+  
+  // ডাটা মার্জ
+  return {
+    ...defaultData,
+    ...savedData,
+    dailyStats: savedData.dailyStats || defaultData.dailyStats,
+    weeklyStats: savedData.weeklyStats || defaultData.weeklyStats
+  };
+}
+
+// ভিজিটর ইনক্রিমেন্ট
+function incrementVisitor(data) {
+  const now = new Date();
+  const today = now.toDateString();
+  const hour = now.getHours();
+  
+  // তারিখ চেক
+  if (data.todayDate !== today) {
+    data.today = 0;
+    data.todayDate = today;
+    
+    // সাপ্তাহিক ডাটা আপডেট
+    updateWeeklyStats(data);
+  }
+  
+  // র‍্যান্ডম ইনক্রিমেন্ট (1-3 ভিজিটর)
+  const increment = Math.floor(Math.random() * 3) + 1;
+  data.today += increment;
+  data.total += increment;
+  
+  // পিক ভিজিটর আপডেট
+  if (data.today > data.peak) {
+    data.peak = data.today;
+    data.peakDate = today;
+  }
+  
+  // টাইম-বেসড ইনক্রিমেন্ট (দিনের সময় অনুযায়ী)
+  if (hour >= 9 && hour <= 22) {
+    data.today += Math.floor(Math.random() * 2); // দিনে বেশি ভিজিটর
+  }
+  
+  // ডেইলি স্ট্যাটস আপডেট
+  const dayKey = now.toLocaleDateString('bn-BD');
+  data.dailyStats[dayKey] = data.dailyStats[dayKey] || 0;
+  data.dailyStats[dayKey] += increment;
+  
+  // localStorage এ সেভ
+  localStorage.setItem('learningMomentVisitors', JSON.stringify(data));
+  
+  // UI আপডেট
+  updateVisitorButton(data);
+  
+  return data;
+}
+
+// সাপ্তাহিক স্ট্যাটস আপডেট
+function updateWeeklyStats(data) {
+  const today = new Date();
+  const dayOfWeek = today.getDay(); // 0 = Sunday, 6 = Saturday
+  
+  // সপ্তাহের ডাটা শিফট
+  if (!data.weeklyStats || data.weeklyStats.length !== 7) {
+    data.weeklyStats = [45, 38, 52, 47, 61, 55, 42];
+  }
+  
+  // আজকের দিনের জন্য র‍্যান্ডম ভিজিটর
+  const dailyVisitors = Math.floor(Math.random() * 30) + 20;
+  data.weeklyStats[dayOfWeek] = dailyVisitors;
+}
+
+// ভিজিটর বাটন আপডেট
+function updateVisitorButton(data) {
+  const btn = document.getElementById('visitorCounterBtn');
+  const text = document.getElementById('totalVisitorText');
+  
+  if (btn && text) {
+    const banglaTotal = formatNumberInBangla(data.total);
+    const banglaToday = formatNumberInBangla(data.today);
+    
+    text.innerHTML = `মোট ভিজিটর: <span class="font-bold">${banglaTotal}</span>`;
+    btn.title = `আজকের ভিজিটর: ${banglaToday}\nক্লিক করে বিস্তারিত দেখুন`;
+    
+    // এনিমেশন
+    btn.classList.add('flip-animation');
+    setTimeout(() => btn.classList.remove('flip-animation'), 600);
+  }
+}
+
+// ভিজিটর মডাল শো
+function showVisitorModal(data) {
+  const modal = document.getElementById('visitorModal');
+  
+  modal.classList.remove('hidden');
+  updateModalStats(data);
+}
+
+// মডাল স্ট্যাটস আপডেট
+function updateModalStats(data) {
+  // টোটাল ভিজিটর
+  document.getElementById('modalTotalVisitors').textContent = formatNumberInBangla(data.total);
+  document.getElementById('modalTotalChange').textContent = `+${formatNumberInBangla(data.today)} আজ`;
+  
+  // আজকের ভিজিটর
+  document.getElementById('modalTodayVisitors').textContent = formatNumberInBangla(data.today);
+  document.getElementById('todayDate').textContent = `আজ: ${formatDateInBangla(data.todayDate)}`;
+  
+  // প্রগ্রেস বার (max 100 ভিজিটর হিসেবে)
+  const progress = Math.min((data.today / 100) * 100, 100);
+  document.getElementById('todayProgress').style.width = `${progress}%`;
+  
+  // সর্বোচ্চ ভিজিটর
+  document.getElementById('modalPeakVisitors').textContent = formatNumberInBangla(data.peak);
+  document.getElementById('peakDate').textContent = formatDateInBangla(data.peakDate);
+  
+  // সাপ্তাহিক স্ট্যাটস
+  const days = ['weekSun', 'weekMon', 'weekTue', 'weekWed', 'weekThu', 'weekFri', 'weekSat'];
+  days.forEach((day, index) => {
+    const element = document.getElementById(day);
+    if (element) {
+      element.textContent = formatNumberInBangla(data.weeklyStats[index] || 0);
+    }
+  });
+}
+
+// সংখ্যাকে বাংলায় রূপান্তর
+function formatNumberInBangla(number) {
+  const banglaDigits = ['০', '১', '২', '৩', '৪', '৫', '৬', '৭', '৮', '৯'];
+  return number.toString().replace(/\d/g, digit => banglaDigits[digit]);
+}
+
+// তারিখ বাংলায় ফরম্যাট
+function formatDateInBangla(dateString) {
+  const date = new Date(dateString);
+  const day = date.getDate();
+  const month = date.getMonth() + 1;
+  const year = date.getFullYear();
+  
+  const banglaMonths = [
+    'জানুয়ারি', 'ফেব্রুয়ারি', 'মার্চ', 'এপ্রিল', 'মে', 'জুন',
+    'জুলাই', 'আগস্ট', 'সেপ্টেম্বর', 'অক্টোবর', 'নভেম্বর', 'ডিসেম্বর'
+  ];
+  
+  const banglaDays = [
+    'রবিবার', 'সোমবার', 'মঙ্গলবার', 'বুধবার', 
+    'বৃহস্পতিবার', 'শুক্রবার', 'শনিবার'
+  ];
+  
+  const dayOfWeek = banglaDays[date.getDay()];
+  const monthName = banglaMonths[date.getMonth()];
+  
+  return `${dayOfWeek}, ${formatNumberInBangla(day)} ${monthName} ${formatNumberInBangla(year)}`;
 }
 
 // নোটিফিকেশন ফাংশন (ঐচ্ছিক)

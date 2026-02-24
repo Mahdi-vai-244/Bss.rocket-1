@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="bn">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Learning Moment | Spoken English Course</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;500;600;700&display=swap"
+    rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Hind Siliguri', sans-serif;
+      scroll-behavior: smooth;
+    }
+
+    .hero-bg {
+      background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%);
+    }
+
+    .btn-highlight {
+      background: #fbbf24;
+      color: #0f172a;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(251, 191, 36, 0.4);
+    }
+
+    .btn-highlight:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(251, 191, 36, 0.6);
+    }
+
+    .lang-btn {
+      cursor: pointer;
+      padding: 2px 8px;
+      border-radius: 4px;
+    }
+
+    .lang-active {
+      background: #3b82f6;
+      color: white;
+    }
+
+    section {
+      scroll-margin-top: 80px;
+    }
+  </style>
+</head>
+
+<body class="bg-gray-50">
+
+  <!-- Navbar -->
+  <nav class="bg-white shadow-sm sticky top-0 z-50">
+    <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+      <!-- লোগো সেকশন -->
+      <div class="flex items-center gap-3">
+        <!-- গোলাকার লোগো -->
+        <img src="assets/logo.png" alt="LM" class="w-11 h-11 object-contain"
+          onerror="this.outerHTML='<span class=\'font-bold text-blue-600\'>LM</span>'">
+        <!-- ওয়ার্ডমার্ক লোগো -->
+        <div class="h-12 md:h-16 flex items-center">
+          <img src="assets/wordmark.png" alt="Learning Moment" class="h-full w-auto object-contain"
+            onerror="this.style.display='none'; this.nextElementSibling.style.display='block'">
+          <span class="hidden font-bold text-blue-900 text-xl tracking-tight">Learning Moment</span>
+        </div>
+      </div>
+
+      <!-- মেনু (ডেস্কটপ) -->
+      <div class="hidden md:flex items-center space-x-6 font-medium text-gray-700">
+        <a href="#home" class="hover:text-blue-600 transition">হোম</a>
+        <a href="#audience" class="hover:text-blue-600 transition">কাদের জন্য</a>
+        <a href="#features" class="hover:text-blue-600 transition">বৈশিষ্ট্য</a>
+        <a href="#exam" class="hover:text-blue-600 transition">পরীক্ষা</a>
+        <a href="#fee" class="hover:text-blue-600 transition">ফি</a>
+        <div class="h-6 w-px bg-gray-200 mx-2"></div>
+        <a href="regi.html" class="btn-highlight px-6 py-2 rounded-full font-bold text-sm">ভর্তি হন</a>
+      </div>
+
+      <!-- মোবাইল মেনু বাটন (আইকন) -->
+
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <header id="home" class="hero-bg text-white py-20 text-center">
+    <div class="container mx-auto px-4">
+      <span class="bg-blue-600 px-4 py-1 rounded-full text-sm font-bold mb-4 inline-block">স্পেশাল লাইভ ব্যাচ
+        ২০২৬</span>
+      <h1 class="text-4xl md:text-6xl font-extrabold mb-6 leading-tight">
+        <span class="lang-content" data-bn="অনলাইন স্পোকেন ইংলিশ লাইভ ক্লাস"
+          data-en="Online Spoken English Live Class">অনলাইন স্পোকেন ইংলিশ লাইভ ক্লাস</span>
+      </h1>
+      <p id="audience" class="text-lg md:text-xl mb-10 text-gray-300 max-w-3xl mx-auto lang-content"
+        data-bn="একদম জিরো লেভেল থেকে ইংরেজি শেখার সেরা সুযোগ। ভয় কাটিয়ে আত্মবিশ্বাসের সাথে কথা বলুন লার্নিং মোমেন্টের সাথে।"
+        data-en="The best chance to learn English from zero level. Speak with confidence and overcome your fear with Learning Moment.">
+        একদম জিরো লেভেল থেকে ইংরেজি শেখার সেরা সুযোগ। ভয় কাটিয়ে আত্মবিশ্বাসের সাথে কথা বলুন লার্নিং মোমেন্টের সাথে।
+      </p>
+      <div class="flex flex-wrap justify-center gap-4">
+        <a href="regi.html" class="btn-highlight px-10 py-4 rounded-xl font-black text-lg">ফ্রি রেজিস্ট্রেশন করুন</a>
+        <a href="https://chat.whatsapp.com/BQboX8poSjJJl0KafoHnik" target="_blank"
+          class="bg-white text-blue-900 font-bold px-10 py-4 rounded-xl hover:bg-gray-100 shadow-lg">হোয়াটসঅ্যাপ
+          গ্রুপ</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Course Fee Info Section -->
+  <section id="fee" class="py-16 bg-white border-b">
+    <div class="container mx-auto px-4 max-w-4xl">
+      <div class="bg-blue-50 border-2 border-blue-200 rounded-3xl p-8 md:p-12 relative overflow-hidden">
+        <div class="absolute top-0 right-0 bg-blue-600 text-white px-8 py-1 rounded-bl-3xl font-bold">কোর্স ফি: ০ টাকা
+          (ফ্রি)</div>
+        <h2 class="text-3xl font-bold mb-6 text-blue-900">কোর্স ফি সংক্রান্ত স্পষ্ট তথ্য</h2>
+        <p class="text-lg mb-6 leading-relaxed text-slate-700">এই কোর্সটি সবার জন্য <strong>সম্পূর্ণ ফ্রি</strong>। লাইভ
+          ক্লাসে অংশ নিতে কোনো টাকা লাগবে না। তবে উন্নত অভিজ্ঞতার জন্য আমরা একটি <strong>Advanced Option</strong>
+          রেখেছি।</p>
+        <div class="flex justify-start">
+          <button id="learnMoreBtn"
+            class="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-5 rounded-full transition shadow-sm text-sm">
+            <span>🔍 কেন এই Advanced Option?</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Popup Modal for Fee Reason -->
+    <div id="popupCard" class="fixed inset-0 flex items-center justify-center z-[100] hidden">
+      <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" id="popupBackdrop"></div>
+      <div class="relative bg-white rounded-3xl max-w-lg w-full mx-4 p-8 shadow-2xl border-t-8 border-blue-600">
+        <div class="flex justify-between items-start mb-4">
+          <h3 class="text-2xl font-bold text-blue-900 italic">Advanced Option – কেন?</h3>
+          <button id="closePopupBtn" class="text-gray-400 hover:text-red-500 transition"><i
+              class="fas fa-times text-xl"></i></button>
+        </div>
+        <div class="text-slate-700 leading-relaxed space-y-4 text-md">
+          <p>অনেকে জানতে চান — যখন আমরা চাইলে এই সুবিধাগুলো ফ্রিতেও দিতে পারতাম, তখন কেন Advanced Option রাখা হয়েছে?
+          </p>
+          <p>এর কারণ খুবই সহজ ও বাস্তবসম্মত। সাধারণত ফ্রি জিনিসের মূল্য মানুষ ততটা উপলব্ধি করে না। সামান্য একটি ফি থাকলে
+            শিক্ষার্থীরা <strong>গুরুত্বসহকারে ক্লাসগুলো অনুসরণ করে</strong> এবং ধারাবাহিকতা বজায় রাখে।</p>
+          <p>এছাড়াও <strong>PDF নোট ও রেকর্ড ক্লাস</strong> প্রস্তুত করতে আলাদা টেকনিক্যাল সাপোর্ট লাগে। মান বজায় রাখতে
+            এই সামান্য ফি রাখা হয়েছে।</p>
+        </div>
+        <button id="closeBtnInside"
+          class="mt-8 w-full bg-blue-100 hover:bg-blue-200 text-blue-800 font-bold py-3 rounded-xl transition">বুঝেছি,
+          বন্ধ করুন</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Advanced Features Grid -->
+  <section id="features" class="py-16 bg-gray-50">
+    <div class="container mx-auto px-4 max-w-4xl">
+      <div class="flex flex-col md:flex-row justify-between items-center mb-10 gap-4">
+        <h2 class="text-3xl font-bold text-gray-800">অ্যাডভান্স ফিচারের সুবিধাসমূহ</h2>
+        <div class="bg-yellow-400 px-6 py-2 rounded-full font-black text-blue-900 shadow-md">১৩৯ ৳ মাত্র</div>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="bg-white p-8 rounded-2xl shadow-sm border hover:shadow-md transition group">
+          <div
+            class="w-14 h-14 bg-red-100 text-red-600 rounded-2xl flex items-center justify-center mb-4 group-hover:bg-red-600 group-hover:text-white transition-all">
+            <i class="fas fa-file-pdf text-2xl"></i>
+          </div>
+          <h4 class="text-xl font-bold mb-2">প্রতিদিনের PDF নোট</h4>
+          <p class="text-gray-500">ক্লাসে যা শেখানো হবে তার গোছানো শিট প্রতিদিনের ক্লাসের পর পেয়ে যাবেন।</p>
+        </div>
+        <div class="bg-white p-8 rounded-2xl shadow-sm border hover:shadow-md transition group">
+          <div
+            class="w-14 h-14 bg-blue-100 text-blue-600 rounded-2xl flex items-center justify-center mb-4 group-hover:bg-blue-600 group-hover:text-white transition-all">
+            <i class="fas fa-play-circle text-2xl"></i>
+          </div>
+          <h4 class="text-xl font-bold mb-2">ক্লাস রেকর্ড ভিডিও</h4>
+          <p class="text-gray-500">যেকোনো কারণে লাইভ ক্লাস মিস করলেও আজীবনের জন্য রেকর্ড সুবিধা।</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Evaluation & Rewards Section -->
+  <section id="exam" class="py-16 bg-white">
+    <div class="container mx-auto px-4 max-w-4xl">
+      <div class="text-center mb-10">
+        <h2 class="text-3xl font-bold text-slate-900 mb-4">📊 মূল্যায়ন ও পুরস্কার সংক্রান্ত নীতিমালা</h2>
+        <p class="text-gray-600 italic">(সকল সুবিধা ও পুরস্কার প্রদান নির্ধারিত নিয়ম ও শর্ত সাপেক্ষে কার্যকর হবে)</p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
+        <div class="bg-slate-50 p-6 rounded-2xl border-l-4 border-blue-600">
+          <h4 class="font-bold text-xl mb-3 text-blue-900">বিশেষ মূল্যায়ন পরীক্ষা</h4>
+          <p class="text-gray-700 leading-relaxed mb-4">শিক্ষার্থীদের শেখা বিষয়গুলো আরও দৃঢ়ভাবে আয়ত্তে আনতে কোর্স
+            চলাকালীন দুটি বিশেষ পরীক্ষার আয়োজন করা হবে:</p>
+          <ul class="space-y-2 text-gray-700">
+            <li><i class="fas fa-pen-alt text-blue-600 mr-2"></i> ১) শব্দার্থ পরীক্ষা</li>
+            <li><i class="fas fa-pen-alt text-blue-600 mr-2"></i> ২) বাক্য গঠন পরীক্ষা</li>
+          </ul>
+        </div>
+        <div class="bg-yellow-50 p-6 rounded-2xl border-l-4 border-yellow-500">
+          <h4 class="font-bold text-xl mb-3 text-yellow-900">সম্মাননা ও স্বীকৃতি</h4>
+          <p class="text-gray-700 leading-relaxed">শীর্ষ স্কোরারদের জন্য থাকছে বিশেষ স্বীকৃতি:</p>
+          <ul class="space-y-2 mt-4 text-gray-700">
+            <li><i class="fas fa-trophy text-yellow-600 mr-2"></i> মেধা তালিকার শীর্ষ <strong>০৮ জন বা যতজন সমমান স্কোর
+                করবে) </strong> শিক্ষার্থীকে আমাদের অফিসিয়াল সোশ্যাল মিডিয়া প্ল্যাটফর্মে লাইভ অনুষ্ঠানের মাধ্যমে
+              সম্মাননা প্রদান করা হবে। পাশাপাশি সফল শিক্ষার্থীদের অফিসিয়াল সার্টিফিকেট প্রদান করা হবে। </li>
+            <li><i class="fas fa-certificate text-blue-600 mr-2"></i> সকল সফল শিক্ষার্থীদের জন্য <strong>অফিসিয়াল
+                সার্টিফিকেট</strong>।</li>
+          </ul>
+        </div>
+      </div>
+
+      <a href="regi.html"
+        class="mt-4 w-full bg-slate-900 text-white py-4 rounded-2xl font-bold flex items-center justify-center gap-2 hover:bg-slate-800 transition">
+        রেজিস্ট্রেশন করতে এখানে ক্লিক করুন <i class="fas fa-arrow-right text-xs"></i>
+      </a>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="bg-slate-900 text-white pt-16 pb-8 border-t border-slate-800">
+    <div class="container mx-auto px-4 text-center">
+      <h3 class="text-3xl font-bold mb-4 text-blue-400 italic">Learning Moment</h3>
+      <p class="text-slate-400 mb-8">সবাই শিখবে, সবাই এগিয়ে যাবে।</p>
+      <div class="flex justify-center gap-6 mb-10">
+        <a href="https://www.facebook.com/profile.php?id=61562588728679" target="_blank"
+          class="text-3xl hover:text-blue-500 transition"><i class="fab fa-facebook"></i></a>
+        <a href="https://chat.whatsapp.com/BQboX8poSjJJl0KafoHnik" target="_blank"
+          class="text-3xl hover:text-green-500 transition"><i class="fab fa-whatsapp"></i></a>
+      </div>
+      <div class="border-t border-slate-800 pt-8 flex flex-wrap justify-center gap-6 text-sm text-slate-500">
+        <p>&copy; ২০২৬ লার্নিং মোমেন্ট।</p>
+        <a href="privacy.html" class="hover:text-white">প্রাইভেসি পলিসি</a>
+        <a href="#" class="hover:text-white">আমাদের সম্পর্কে</a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // Popup Logic
+    const learnMoreBtn = document.getElementById('learnMoreBtn');
+    const popupCard = document.getElementById('popupCard');
+    const closeBtns = [document.getElementById('closePopupBtn'), document.getElementById('closeBtnInside'), document.getElementById('popupBackdrop')];
+
+    if (learnMoreBtn) learnMoreBtn.onclick = () => popupCard.classList.remove('hidden');
+    closeBtns.forEach(btn => {
+      if (btn) btn.onclick = () => popupCard.classList.add('hidden');
+    });
+  </script>
+</body>
+
+</html>

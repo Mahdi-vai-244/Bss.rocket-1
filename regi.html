@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>প্রিমিয়াম রেজিস্ট্রেশন | আমাদের সাথে যোগ দিন</title>
+  <!-- Google Fonts -->
+  <link
+    href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap"
+    rel="stylesheet">
+  <style>
+    :root {
+      --primary: #2563eb;
+      --primary-hover: #1d4ed8;
+      --bg-gradient: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+      --card-bg: #ffffff;
+      --text-main: #1e293b;
+      --text-muted: #64748b;
+      --border: #e2e8f0;
+      --radius: 12px;
+      --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Hind Siliguri', 'Inter', sans-serif;
+    }
+
+    body {
+      background: var(--bg-gradient);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      color: var(--text-main);
+    }
+
+    .container {
+      width: 100%;
+      max-width: 500px;
+      background: var(--card-bg);
+      padding: 40px;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      animation: fadeIn 0.6s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+
+    .header h1 {
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: var(--text-main);
+      margin-bottom: 8px;
+    }
+
+    .header p {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      font-size: 0.875rem;
+      font-weight: 500;
+      margin-bottom: 8px;
+      color: var(--text-main);
+    }
+
+    input[type="text"],
+    input[type="date"],
+    input[type="tel"],
+    select {
+      width: 100%;
+      padding: 12px 16px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+      outline: none;
+      background: #fdfdfd;
+    }
+
+    input:focus,
+    select:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
+      background: #fff;
+    }
+
+    /* Custom Radio Buttons */
+    .radio-group {
+      display: flex;
+      gap: 16px;
+      margin-top: 8px;
+    }
+
+    .radio-option {
+      flex: 1;
+      position: relative;
+    }
+
+    .radio-option input {
+      position: absolute;
+      opacity: 0;
+      cursor: pointer;
+    }
+
+    .radio-label {
+      display: block;
+      text-align: center;
+      padding: 10px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-weight: 500;
+      font-size: 0.9rem;
+    }
+
+    .radio-option input:checked+.radio-label {
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary);
+    }
+
+    /* Checkbox Styling */
+    .checkbox-group {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      margin-top: 24px;
+    }
+
+    .checkbox-group input {
+      width: 18px;
+      height: 18px;
+      margin-top: 2px;
+      cursor: pointer;
+    }
+
+    .checkbox-group label {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      line-height: 1.4;
+      cursor: pointer;
+    }
+
+    .checkbox-group a {
+      color: var(--primary);
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    .checkbox-group a:hover {
+      text-decoration: underline;
+    }
+
+    /* Submit Button */
+    .submit-btn {
+      width: 100%;
+      padding: 14px;
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 32px;
+      transition: transform 0.2s, background 0.3s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .submit-btn:hover {
+      background: var(--primary-hover);
+      transform: translateY(-1px);
+    }
+
+    .submit-btn:active {
+      transform: translateY(0);
+    }
+
+    /* Alert Box */
+    #alert-box {
+      display: none;
+      background: #fee2e2;
+      color: #991b1b;
+      padding: 12px;
+      border-radius: 8px;
+      font-size: 0.875rem;
+      margin-bottom: 20px;
+      border: 1px solid #fecaca;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 480px) {
+      .container {
+        padding: 24px;
+      }
+
+      .header h1 {
+        font-size: 1.5rem;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="container">
+    <div class="header">
+      <h1>রেজিস্ট্রেশন ফর্ম</h1>
+      <p>শুরু করতে অনুগ্রহ করে আপনার বিস্তারিত তথ্য প্রদান করুন।</p>
+    </div>
+
+    <div id="alert-box"></div>
+
+    <form id="registrationForm">
+      <!-- Name -->
+      <div class="form-group">
+        <label for="name">সম্পূর্ণ নাম</label>
+        <input type="text" id="name" placeholder="যেমন: আব্দুর রহমান" required>
+      </div>
+
+      <!-- Birth Date -->
+      <div class="form-group">
+        <label for="dob">জন্ম তারিখ</label>
+        <input type="date" id="dob" required>
+      </div>
+
+      <!-- Phone Number -->
+      <div class="form-group">
+        <label for="phone">ফোন নম্বর</label>
+        <input type="tel" id="phone" placeholder="০১XXX-XXXXXX" required>
+      </div>
+
+      <!-- Student Type -->
+      <div class="form-group">
+        <label for="type">পেশা/শিক্ষার্থীর ধরন</label>
+        <select id="type" required>
+          <option value="" disabled selected>আপনার ধরন নির্বাচন করুন</option>
+          <option value="Madrasa Student">মাদ্রাসা শিক্ষার্থী</option>
+          <option value="School Student">স্কুল/কলেজ শিক্ষার্থী</option>
+          <option value="Businessman">ব্যবসায়ী</option>
+          <option value="Job Holder">চাকরিজীবী</option>
+          <option value="Custom">অন্যান্য</option>
+        </select>
+      </div>
+
+      <!-- Qualification -->
+      <div class="form-group">
+        <label for="qualification">শিক্ষাগত যোগ্যতা</label>
+        <input type="text" id="qualification" placeholder="যেমন: এইচএসসি, বিএসসি" required>
+      </div>
+
+      <!-- Package Selection -->
+      <div class="form-group">
+        <label>প্যাকেজ নির্বাচন</label>
+        <div class="radio-group">
+          <div class="radio-option">
+            <input type="radio" name="package" id="free" value="Free">
+            <label for="free" class="radio-label">ফ্রি (Free)</label>
+          </div>
+          <div class="radio-option">
+            <input type="radio" name="package" id="advance" value="Advance">
+            <label for="advance" class="radio-label">অ্যাডভান্স (Advance)</label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Privacy Policy -->
+      <div class="checkbox-group">
+        <input type="checkbox" id="privacy">
+        <label for="privacy">
+          আমি <a href="privacy.html" target="_blank">প্রাইভেসি পলিসি</a> পড়েছি এবং এতে সম্মত।
+        </label>
+      </div>
+
+      <!-- Submit Button -->
+      <button type="submit" class="submit-btn">
+        <span>হোয়াটসঅ্যাপে জমা দিন</span>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+          stroke-linecap="round" stroke-linejoin="round">
+          <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"></path>
+        </svg>
+      </button>
+    </form>
+  </div>
+
+  <script>
+    const form = document.getElementById('registrationForm');
+    const alertBox = document.getElementById('alert-box');
+
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+
+      // Collect Data
+      const name = document.getElementById('name').value.trim();
+      const dob = document.getElementById('dob').value;
+      const phone = document.getElementById('phone').value.trim();
+      const type = document.getElementById('type').value;
+      const qualification = document.getElementById('qualification').value.trim();
+      const packageNode = document.querySelector('input[name="package"]:checked');
+      const privacyChecked = document.getElementById('privacy').checked;
+
+      // Validation
+      let errorMessage = "";
+      if (!name) errorMessage = "অনুগ্রহ করে আপনার সম্পূর্ণ নাম লিখুন।";
+      else if (!dob) errorMessage = "অনুগ্রহ করে আপনার জন্ম তারিখ নির্বাচন করুন।";
+      else if (!phone) errorMessage = "অনুগ্রহ করে আপনার ফোন নম্বর লিখুন।";
+      else if (!type) errorMessage = "অনুগ্রহ করে আপনার ধরন নির্বাচন করুন।";
+      else if (!qualification) errorMessage = "অনুগ্রহ করে আপনার শিক্ষাগত যোগ্যতা লিখুন।";
+      else if (!packageNode) errorMessage = "অনুগ্রহ করে একটি প্যাকেজ নির্বাচন করুন।";
+      else if (!privacyChecked) errorMessage = "আপনাকে অবশ্যই প্রাইভেসি পলিসিতে সম্মত হতে হবে।";
+
+      if (errorMessage) {
+        alertBox.textContent = errorMessage;
+        alertBox.style.display = 'block';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        return;
+      }
+
+      // Success - Hide alert
+      alertBox.style.display = 'none';
+
+      // Prepare WhatsApp Message
+      const selectedPackage = packageNode.value;
+      const whatsappNumber = "8801887852687";
+
+      const message = `*নতুন রেজিস্ট্রেশন আবেদন*%0A` +
+        `--------------------------%0A` +
+        `*নাম:* ${encodeURIComponent(name)}%0A` +
+        `*জন্ম তারিখ:* ${encodeURIComponent(dob)}%0A` +
+        `*ফোন:* ${encodeURIComponent(phone)}%0A` +
+        `*ধরন:* ${encodeURIComponent(type)}%0A` +
+        `*যোগ্যতা:* ${encodeURIComponent(qualification)}%0A` +
+        `*প্যাকেজ:* ${encodeURIComponent(selectedPackage)}%0A` +
+        `--------------------------%0A` +
+        `_ওয়েবসাইট রেজিস্ট্রেশন ফর্ম থেকে প্রেরিত_`;
+
+      const whatsappURL = `https://wa.me/${whatsappNumber}?text=${message}`;
+
+      // Open WhatsApp
+      window.open(whatsappURL, '_blank');
+    });
+  </script>
+</body>
+
+</html>
